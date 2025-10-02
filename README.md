@@ -40,14 +40,14 @@ All steps are implemented as requests inside this Postman collection, with varia
 
 ---
 
-## 4. API Workflow
+## 4. Workflow and API Table
 
-| Endpoint                                 | Method | Request Body                                                                                                                                                              | Notes                                                                                                |
-| ---------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `{{base_url}}/auth/token/{{client_id}}`  | POST   | { "x-api-key": "{{api_key}}" }                                                                                                                                            | Request access token. Save `access_token` to environment variable.                                   |
-| `/public/payment/instruments/initialize` | POST   | { "type": "tokenization", "holderReference": "{{holder_reference}}" }                                                                                                     | Initialize client with Client Side Encryption. Save `tokenization.publicKey` for encryption.         |
-| (Encryption Step)                        | N/A    | { "cardNumber": "4111111111111111", "expiryMonth": "03", "expiryYear": "30", "securityCode": "737", "holderName": "John Doe", "holderReference": "{{holder_reference}}" } | Encrypt this JSON using JWE with the `tokenization.publicKey`. Result goes to `encrypted_card_data`. |
-| `/public/payment/instruments/tokenize`   | POST   | { "holderReference": "{{holder_reference}}", "encryptedInstrumentDetails": "{{encrypted_card_data}}", "futureUsage": "CardOnFile", "storeInstrument": true }              | Tokenize the encrypted card. Returns 201 Created with instrument ID.                                 |
+| Step | Endpoint                                 | Method | Request Body                                                                                                                                                              | Notes                                                                |
+| ---- | ---------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 1    | `{{base_url}}/auth/token/{{client_id}}`  | POST   | { "x-api-key": "{{api_key}}" }                                                                                                                                            | Request access token. Save `access_token`.                           |
+| 2    | `/public/payment/instruments/initialize` | POST   | { "type": "tokenization", "holderReference": "{{holder_reference}}" }                                                                                                     | Initialize client. Save `tokenization.publicKey` as `public_key`.    |
+| 3    | (Encryption Step)                        | N/A    | { "cardNumber": "4111111111111111", "expiryMonth": "03", "expiryYear": "30", "securityCode": "737", "holderName": "John Doe", "holderReference": "{{holder_reference}}" } | Encrypt using `public_key`. Save as `encrypted_card_data`.           |
+| 4    | `/public/payment/instruments/tokenize`   | POST   | { "holderReference": "{{holder_reference}}", "encryptedInstrumentDetails": "{{encrypted_card_data}}", "futureUsage": "CardOnFile", "storeInstrument": true }              | Tokenize the encrypted card. Returns 201 Created with instrument ID. |
 
 ---
 

@@ -21,6 +21,7 @@ All steps are implemented as requests inside this Postman collection, with varia
 ## 2. Prerequisites
 
 * [Postman](https://www.postman.com/) installed.
+* [Mockoon](https://mockoon.com/) installed (optional, for running local mock servers).
 * Payrails sandbox credentials (`api_key` and `client_id`).
 * Node.js v18+ (optional, for encryption scripts).
 
@@ -42,12 +43,12 @@ All steps are implemented as requests inside this Postman collection, with varia
 
 ## 4. Workflow and API Table
 
-| Step | Endpoint                                 | Method | Request Body                                                                                                                                                              | Notes                                                                |
-| ---- | ---------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| 1    | `{{base_url}}/auth/token/{{client_id}}`  | POST   | { "x-api-key": "{{api_key}}" }                                                                                                                                            | Request an access token and save it to the access_token environment variable.                           |
-| 2    | `/public/payment/instruments/initialize` | POST   | { "type": "tokenization", "holderReference": "{{holder_reference}}" }                                                                                                     | Initialize client with Client Side Encryption. Save tokenization.publicKey as public_key for encryption.    |
-| 3    | (Encryption Step)                        | N/A    | { "cardNumber": "4111111111111111", "expiryMonth": "03", "expiryYear": "30", "securityCode": "737", "holderName": "John Doe", "holderReference": "{{holder_reference}}" } | Action: Encrypt this JSON using JWE with public_key. Save the resulting value to encrypted_card_data.           |
-| 4    | `/public/payment/instruments/tokenize`   | POST   | { "holderReference": "{{holder_reference}}", "encryptedInstrumentDetails": "{{encrypted_card_data}}", "futureUsage": "CardOnFile", "storeInstrument": true }              | Tokenize the encrypted card. The API returns 201 Created with the tokenized instrument ID.. |
+| Step | Name                        | Endpoint                                 | Method | Request Body                                                                                                                                                              | Notes                                                                                                        |
+| ---- | --------------------------- | ---------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 1    | Request Access Token        | `{{base_url}}/auth/token/{{client_id}}`  | POST   | { "x-api-key": "{{api_key}}" }                                                                                                                                            | Request an access token and save it to the `access_token` environment variable.                              |
+| 2    | Initialize Client           | `/public/payment/instruments/initialize` | POST   | { "type": "tokenization", "holderReference": "{{holder_reference}}" }                                                                                                     | Initialize client with Client Side Encryption. Save `tokenization.publicKey` as `public_key` for encryption. |
+| 3    | Encrypt Card Details        | N/A                                      | N/A    | { "cardNumber": "4111111111111111", "expiryMonth": "03", "expiryYear": "30", "securityCode": "737", "holderName": "John Doe", "holderReference": "{{holder_reference}}" } | Encrypt this JSON using JWE with `public_key`. Save the resulting value to `encrypted_card_data`.            |
+| 4    | Tokenize Payment Instrument | `/public/payment/instruments/tokenize`   | POST   | { "holderReference": "{{holder_reference}}", "encryptedInstrumentDetails": "{{encrypted_card_data}}", "futureUsage": "CardOnFile", "storeInstrument": true }              | Tokenize the encrypted card. The API returns 201 Created with the tokenized instrument ID.                   |
 
 ---
 
